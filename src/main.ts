@@ -5,6 +5,8 @@ import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const apiVersion = app.get(ConfigService).get<string>('api_version');
+  const port = Number(app.get(ConfigService).get<number>('PORT'));
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -13,7 +15,12 @@ async function bootstrap() {
       transform: true,
     }),
   );
-  const configService = app.get(ConfigService);
-  await app.listen(Number(configService.get('PORT')));
+
+  app.setGlobalPrefix(`api/v${apiVersion}`);
+  await app.listen(port);
+  console.log(
+    `Server listening at http://localhost:${port}/api/v${apiVersion} 🚀🚀🚀`,
+  );
 }
+
 bootstrap();
